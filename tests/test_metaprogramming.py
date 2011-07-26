@@ -3,7 +3,7 @@ import pkg_resources
 import pytest
 import yaml
 
-import metaprogramming
+from braindump import metaprogramming
 
 
 with contextlib.closing(
