@@ -1,0 +1,32 @@
+---
+words: [HTTP, error]
+repr: Casing([u'HTTP', u'error'])
+
+cases:
+  upper: HTTP_ERROR
+  lower: http_error
+
+  mixed: httpError
+  camel: HttpError
+  acronymic: HTTPError
+
+  ident: http_error
+  slug: http-error
+
+---
+words: [ünikåd]
+
+cases:
+  ident: nik_d
+
+---
+words: [5]
+
+cases:
+  ident: _5
+
+---
+words: [import]
+
+cases:
+  ident: import_

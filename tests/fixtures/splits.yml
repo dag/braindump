@@ -1,0 +1,30 @@
+---
+"HTTP Error Status":
+  whitespace: [HTTP, Error, Status]
+  words: [HTTP, Error, Status]
+  smart: [HTTP, Error, Status]
+
+---
+"HTTP_ERROR_STATUS":
+  words: [HTTP, ERROR, STATUS]
+  smart: [HTTP, ERROR, STATUS]
+
+---
+"http_error_status":
+  words: [http, error, status]
+  smart: [http, error, status]
+
+---
+"httpErrorStatus":
+  mixed: [http, Error, Status]
+  camel: [Error, Status]
+  smart: [http, Error, Status]
+
+---
+"HTTPErrorStatus":
+  initials: [HTTP, Error, Status]
+  smart: [HTTP, Error, Status]
+
+---
+" error%_  statusHTTP=":
+  smart: [error, status, HTTP]
