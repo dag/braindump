@@ -1,0 +1,7 @@
+_private: private
+import_: import
+snake_case: snake-case
+lowerCamelCase: lower-camel-case
+CamelCase: camel-case
+HTTPError: http-error
+STATUS_CODE: status-code
