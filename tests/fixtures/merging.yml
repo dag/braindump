@@ -1,0 +1,46 @@
+---
+mappings:
+- numbers:
+    one: 1
+    two: 2
+    three: 3
+  greetings:
+    english: Hello
+    swedish: Hej
+
+- numbers:
+    three: 3
+    four: 4
+    five: 5
+  greetings:
+    lojban: coi
+
+- english greetings:
+  - Hello
+  - Hi
+  swedish greetings:
+  - Hej
+  - Tjenare
+
+- swedish greetings:
+  - Hejsan
+
+- language: YAML
+
+merged:
+  numbers:
+    one: 1
+    two: 2
+    three: 3
+    four: 4
+    five: 5
+  greetings:
+    english: Hello
+    swedish: Hej
+    lojban: coi
+  english greetings:
+  - Hello
+  - Hi
+  swedish greetings:
+  - Hejsan
+  language: YAML

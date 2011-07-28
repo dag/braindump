@@ -1,3 +1,4 @@
+import copy
 import pytest
 
 from braindump import cli
@@ -18,3 +19,15 @@ def test_config_node():
         node.two = 'two'
     with pytest.raises(AttributeError):
         node.three = 3
+
+
+def test_dict_merging(merging):
+    # copy the mappings so we can check that they weren't modified
+    mappings = copy.deepcopy(merging['mappings'])
+
+    merged = cli.merge(merging['mappings'])
+    assert merged == merging['merged']
+    assert merging['mappings'] == mappings
+
+    # merge into a new dict rather than in-place of any of the passed ones
+    assert not any(merged is mapping for mapping in merging['mappings'])
