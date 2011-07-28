@@ -1,13 +1,13 @@
 import copy
 import pytest
 
-from braindump import cli
+from braindump import config
 
 
-def test_config_node():
-    node = cli.ConfigNode(one=1, two=2)
+def test_node():
+    node = config.Node(one=1, two=2)
 
-    assert repr(node) == 'ConfigNode(one=1, two=2)'
+    assert repr(node) == 'Node(one=1, two=2)'
 
     # fields are attributes
     assert node.one == 1 and node.two == 2
@@ -25,7 +25,7 @@ def test_dict_merging(merging):
     # copy the mappings so we can check that they weren't modified
     mappings = copy.deepcopy(merging['mappings'])
 
-    merged = cli.merge(merging['mappings'])
+    merged = config.merge(merging['mappings'])
     assert merged == merging['merged']
     assert merging['mappings'] == mappings
 

@@ -1,7 +1,7 @@
 import copy
 
 
-class ConfigNode(object):
+class Node(object):
 
     __slots__ = ('__fields',)
 
