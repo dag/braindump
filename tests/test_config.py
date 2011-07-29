@@ -127,6 +127,14 @@ def test_json_loader():
     assert two == dict(numbers=dict(two=2))
 
 
+def test_ini_loader():
+    loader = config.INILoader()
+    mapping = dict(types=dict(int=1, float=3.14, boolean=True, string='also'))
+
+    assert loader(_relative('fixtures/configs/one.ini')) == mapping
+    assert loader('tests.fixtures:configs/one.ini') == mapping
+
+
 def test_builder():
     builder = config.Builder()
 

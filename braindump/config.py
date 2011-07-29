@@ -1,4 +1,5 @@
 import abc
+import ConfigParser as configparser
 import contextlib
 import copy
 import json
@@ -138,6 +139,30 @@ class YAMLLoader(AbstractStreamLoader):
 class JSONLoader(AbstractStreamLoader):
 
     function = json.load
+
+
+class INILoader(AbstractLoader):
+
+    def __call__(self, spec):
+        parser = configparser.RawConfigParser()
+        with self.get_stream(spec) as stream:
+            parser.readfp(stream, spec)
+        mapping = {}
+        for section in parser.sections():
+            mapping[section] = {}
+            for option, value in parser.items(section):
+                try:
+                    value = parser.getint(section, option)
+                except ValueError:
+                    try:
+                        value = parser.getfloat(section, option)
+                    except ValueError:
+                        try:
+                            value = parser.getboolean(section, option)
+                        except ValueError:
+                            pass
+                mapping[section][option] = value
+        return mapping
 
 
 class Builder(object):
