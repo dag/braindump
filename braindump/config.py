@@ -21,6 +21,20 @@ class Node(object):
         except KeyError:
             raise AttributeError(name)
 
+    def __contains__(self, path):
+        try:
+            self[path]
+        except KeyError:
+            return False
+        return True
+
+    def __getitem__(self, path):
+        names = map(meta.string_to_identifier, path.split(u'.'))
+        try:
+            return reduce(getattr, [self] + names)
+        except AttributeError:
+            raise KeyError(path)
+
     def __dir__(self):
         return self.__children.keys()
 

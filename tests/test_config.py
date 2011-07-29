@@ -23,6 +23,26 @@ def test_node():
         node.three = 3
 
 
+def test_node_traversal():
+    node = config.Node(greetings=dict(english='Hello', swedish='Hej'))
+
+    assert 'greetings' in node
+    assert 'greetings.english' in node
+    assert 'greetings.swedish' in node
+    assert 'missing' not in node
+
+    assert node['greetings'] is node.greetings
+    assert node['greetings.english'] is node.greetings.english
+    assert node['greetings.swedish'] is node.greetings.swedish
+
+    with pytest.raises(KeyError):
+        node['missing']
+
+    node = config.Node(class_=dict(is_='a keyword'))
+    assert 'class.is' in node
+    assert node['class.is'] is node.class_.is_
+
+
 def test_key_conversion():
     mapping = config.convert_keys({
         'class': 'keyword',
