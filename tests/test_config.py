@@ -169,14 +169,16 @@ def test_builder():
 def test_builder_add_loader():
     builder = config.Builder()
 
+    # loading is delayed until building
+    builder.load('tests.fixtures:configs/one.yml')
+    builder.load('tests.fixtures:configs/two.json')
+    builder.load(_relative('fixtures/configs/three.yml'))
+
+    # thus we can add loaders after sources
     builder.add_loader('.json', config.JSONLoader())
     builder.add_loader('.yml', config.YAMLLoader())
     with pytest.raises(AssertionError):
         builder.add_loader('.yml', config.YAMLLoader())
-
-    builder.load('tests.fixtures:configs/one.yml')
-    builder.load('tests.fixtures:configs/two.json')
-    builder.load(_relative('fixtures/configs/three.yml'))
 
     conf = builder.build()
     assert conf == config.Node(
@@ -188,11 +190,13 @@ def test_builder_add_loader():
     assert conf == config.Node()
 
     # ambiguous spec
+    builder.reset()
+    builder.load('tests.fixtures:configs/one')
     with pytest.raises(AssertionError):
-        builder.load('tests.fixtures:configs/one')
+        builder.build()
 
-    # unambiguous, only three.yml exists
+    # unambiguous, only .yml exists
+    builder.reset()
     builder.load('tests.fixtures:configs/three')
-
     conf = builder.build()
     assert conf == config.Node(numbers=config.Node(three=3))

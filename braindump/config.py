@@ -173,14 +173,17 @@ class Builder(object):
         self.reset()
 
     def reset(self):
-        self._settings = []
+        self._sources = []
 
     def add_loader(self, ext, loader):
         assert ext not in self._loaders
         self._loaders[ext] = loader
 
     def set(self, **settings):
-        self._settings.append(settings)
+        self._sources.append(settings)
+
+    def load(self, source):
+        self._sources.append(source)
 
     def _load_if_exists(self, spec):
         root, ext = os.path.splitext(spec)
@@ -194,21 +197,19 @@ class Builder(object):
                 return
             raise
 
-    def load(self, source):
-        if isinstance(source, basestring):
-            settings = self._load_if_exists(source)
-            if settings is None:
-                root, _ext = os.path.splitext(source)
-                for ext in self._loaders:
-                    assert settings is None
-                    settings = self._load_if_exists(root + ext)
-            assert settings is not None
-            self.set(**settings)
-        else:
-            self.set(**source)
-
     def build(self):
-        safe = map(convert_keys, self._settings)
+        safe = []
+        for source in self._sources:
+            if isinstance(source, basestring):
+                loaded = self._load_if_exists(source)
+                if loaded is None:
+                    root, _ext = os.path.splitext(source)
+                    for ext in self._loaders:
+                        assert loaded is None
+                        loaded = self._load_if_exists(root + ext)
+                assert loaded is not None
+                source = loaded
+            safe.append(convert_keys(source))
         merged = merge(safe)
         config = Node(**merged)
         return config
