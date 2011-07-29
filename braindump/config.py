@@ -1,5 +1,7 @@
 import copy
 
+from . import meta
+
 
 class Node(object):
 
@@ -35,6 +37,15 @@ class Node(object):
         return '{0}({1})'.format(type(self).__name__, children)
 
 
+def convert_keys(mapping, converter=meta.string_to_identifier):
+    if not isinstance(mapping, dict):
+        return mapping
+    new = {}
+    for key, value in mapping.iteritems():
+        new[converter(key)] = convert_keys(value, converter)
+    return new
+
+
 def merge(mappings):
     merged = {}
     for mapping in mappings:
@@ -63,6 +74,7 @@ class Builder(object):
         self._mappings.append(mapping)
 
     def build(self):
-        merged = merge(self._mappings)
+        mappings_with_safe_keys = map(convert_keys, self._mappings)
+        merged = merge(mappings_with_safe_keys)
         config = Node(**merged)
         return config

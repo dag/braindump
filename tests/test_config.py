@@ -21,6 +21,22 @@ def test_node():
         node.three = 3
 
 
+def test_key_conversion():
+    mapping = config.convert_keys({
+        'class': 'keyword',
+        '5': 'number',
+        ' arbitrarily-complex %KEY!!': 'encoded',
+        'nested': {'import': 'also keyword'},
+    })
+
+    assert mapping == dict(
+        class_='keyword',
+        _5='number',
+        arbitrarily_complex_key='encoded',
+        nested=dict(import_='also keyword'),
+    )
+
+
 def test_dict_merging(merging):
     # copy the mappings so we can check that they weren't modified
     mappings = copy.deepcopy(merging['mappings'])
@@ -36,22 +52,29 @@ def test_dict_merging(merging):
 def test_builder():
     builder = config.Builder()
 
-    builder.add(
-        dict(
-            numbers=dict(one=1, two=2, three=4),
-            greetings=dict(english='Hello', swedish='Hej'),
-        )
-    )
+    builder.add({
+        'numbers': dict(one=1, two=2, three=4),
+        'greetings': dict(english='Hello', swedish='Hej'),
+    })
 
-    builder.add(
-        dict(
-            numbers=dict(two=2, three=3, four=4),
-            greetings=dict(lojban='coi'),
-        )
-    )
+    builder.add({
+        'numbers': dict(two=2, three=3, four=4),
+        'greetings': dict(lojban='coi'),
+    })
+
+    builder.add({
+        'class': 'keyword',
+        '5': 'number',
+        ' arbitrarily-complex %KEY!!': 'encoded',
+    })
+
+    builder.add({'merge-by-converted-key': dict(one=1, two=2)})
+    builder.add({'merge_by_converted_key': dict(three=3, four=4)})
 
     conf = builder.build()
     assert conf == config.Node(
         numbers=config.Node(one=1, two=2, three=3, four=4),
         greetings=config.Node(english='Hello', swedish='Hej', lojban='coi'),
+        class_='keyword', _5='number', arbitrarily_complex_key='encoded',
+        merge_by_converted_key=config.Node(one=1, two=2, three=3, four=4),
     )
