@@ -1,4 +1,9 @@
+import abc
+import contextlib
 import copy
+import os
+import pkg_resources
+import yaml
 
 from . import meta
 
@@ -79,13 +84,73 @@ def merge(mappings):
     return merged
 
 
+class AbstractLoader(object):
+
+    __metaclass__ = abc.ABCMeta
+
+    def get_location(self, spec):
+        if u':' not in spec:
+            return None, spec
+        return spec.split(u':', 1)
+
+    def get_stream(self, spec):
+        package, name = self.get_location(spec)
+        if package:
+            stream = pkg_resources.resource_stream(package, name)
+            return contextlib.closing(stream)
+        return open(name)
+
+    def get_filename(self, spec):
+        package, name = self.get_location(spec)
+        if package:
+            return pkg_resources.resource_filename(package, name)
+        return name
+
+    def get_string(self, spec):
+        package, name = self.get_location(spec)
+        if package:
+            return pkg_resources.resource_string(package, name)
+        with open(name) as stream:
+            return stream.read()
+
+    @abc.abstractmethod
+    def __call__(self, spec):
+        pass
+
+
+class AbstractStreamLoader(AbstractLoader):
+
+    @abc.abstractproperty
+    def function(self):
+        pass
+
+    def __call__(self, spec):
+        with self.get_stream(spec) as stream:
+            return self.function.__func__(stream)
+
+
+class YAMLLoader(AbstractStreamLoader):
+
+    function = yaml.load
+
+
 class Builder(object):
 
     def __init__(self):
         self._mappings = []
+        self._loaders = {}
 
-    def add(self, mapping):
-        self._mappings.append(mapping)
+    def add_loader(self, ext, loader):
+        assert ext not in self._loaders
+        self._loaders[ext] = loader
+
+    def add(self, source):
+        if isinstance(source, basestring):
+            root, ext = os.path.splitext(source)
+            loader = self._loaders[ext]
+            self._mappings.append(loader(source))
+        else:
+            self._mappings.append(source)
 
     def build(self):
         mappings_with_safe_keys = map(convert_keys, self._mappings)

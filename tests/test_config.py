@@ -1,7 +1,12 @@
 import copy
+import os
 import pytest
 
 from braindump import config
+
+
+def _relative(*path):
+    return os.path.abspath(os.path.join(os.path.dirname(__file__), *path))
 
 
 def test_node():
@@ -71,6 +76,47 @@ def test_dict_merging(merging):
     assert not any(merged is mapping for mapping in merging['mappings'])
 
 
+def test_abstract_loader():
+    class FakeLoader(config.AbstractLoader):
+        __call__ = None
+    loader = FakeLoader()
+
+    package, name = loader.get_location('tests.fixtures:configs/one.yml')
+    assert package == 'tests.fixtures' and name == 'configs/one.yml'
+
+    package, name = loader.get_location('configs/one.yml')
+    assert not package and name == 'configs/one.yml'
+
+    package, name = loader.get_location(':configs/with:colon.yml')
+    assert not package and name == 'configs/with:colon.yml'
+
+    with loader.get_stream('tests.fixtures:configs/one.yml') as stream:
+        streamed = stream.read()
+    string = loader.get_string('tests.fixtures:configs/one.yml')
+    assert streamed == string == 'numbers:\n  one: 1\n'
+
+    with loader.get_stream(_relative('fixtures/configs/one.yml')) as stream:
+        streamed = stream.read()
+    string = loader.get_string(_relative('fixtures/configs/one.yml'))
+    assert streamed == string == 'numbers:\n  one: 1\n'
+
+    filename = loader.get_filename('tests.fixtures:configs/one.yml')
+    assert filename == _relative('fixtures/configs/one.yml')
+
+    filename = loader.get_filename(_relative('fixtures/configs/one.yml'))
+    assert filename == _relative('fixtures/configs/one.yml')
+
+
+def test_yaml_loader():
+    loader = config.YAMLLoader()
+
+    one = loader(_relative('fixtures/configs/one.yml'))
+    assert one == dict(numbers=dict(one=1))
+
+    two = loader('tests.fixtures:configs/two.yml')
+    assert two == dict(numbers=dict(two=2))
+
+
 def test_builder():
     builder = config.Builder()
 
@@ -99,4 +145,21 @@ def test_builder():
         greetings=config.Node(english='Hello', swedish='Hej', lojban='coi'),
         class_='keyword', _5='number', arbitrarily_complex_key='encoded',
         merge_by_converted_key=config.Node(one=1, two=2, three=3, four=4),
+    )
+
+
+def test_builder_add_loader():
+    builder = config.Builder()
+    builder.add_loader('.yml', config.YAMLLoader())
+
+    with pytest.raises(AssertionError):
+        builder.add_loader('.yml', config.YAMLLoader())
+
+    builder.add('tests.fixtures:configs/one.yml')
+    builder.add(_relative('fixtures/configs/two.yml'))
+    builder.add(_relative('fixtures/configs/three.yml'))
+    conf = builder.build()
+
+    assert conf == config.Node(
+        numbers=config.Node(one=1, two=2, three=3),
     )
