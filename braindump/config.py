@@ -3,36 +3,36 @@ import copy
 
 class Node(object):
 
-    __slots__ = ('__fields',)
+    __slots__ = ('__children',)
 
-    def __init__(self, **fields):
-        self.__fields = {}
-        for key, value in fields.iteritems():
+    def __init__(self, **children):
+        self.__children = {}
+        for key, value in children.iteritems():
             if isinstance(value, dict):
-                self.__fields[key] = type(self)(**value)
+                self.__children[key] = type(self)(**value)
             else:
-                self.__fields[key] = value
+                self.__children[key] = value
 
-    def __getattr__(self, field):
+    def __getattr__(self, name):
         try:
-            return self.__fields[field]
+            return self.__children[name]
         except KeyError:
-            raise AttributeError(field)
+            raise AttributeError(name)
 
     def __dir__(self):
-        return self.__fields.keys()
+        return self.__children.keys()
 
     def __iter__(self):
-        return iter(self.__fields)
+        return iter(self.__children)
 
     def __eq__(self, other):
         return (isinstance(other, type(self)) and
-                self.__fields == other._Node__fields)
+                self.__children == other._Node__children)
 
     def __repr__(self):
-        fields = ', '.join('{0}={1!r}'.format(*item)
-                           for item in sorted(self.__fields.iteritems()))
-        return '{0}({1})'.format(type(self).__name__, fields)
+        children = ', '.join('{0}={1!r}'.format(*item)
+                             for item in sorted(self.__children.iteritems()))
+        return '{0}({1})'.format(type(self).__name__, children)
 
 
 def merge(mappings):
