@@ -186,3 +186,13 @@ def test_builder_add_loader():
     builder.reset()
     conf = builder.build()
     assert conf == config.Node()
+
+    # ambiguous spec
+    with pytest.raises(AssertionError):
+        builder.load('tests.fixtures:configs/one')
+
+    # unambiguous, only three.yml exists
+    builder.load('tests.fixtures:configs/three')
+
+    conf = builder.build()
+    assert conf == config.Node(numbers=config.Node(three=3))

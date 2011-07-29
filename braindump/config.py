@@ -2,6 +2,7 @@ import abc
 import ConfigParser as configparser
 import contextlib
 import copy
+import errno
 import json
 import os
 import pkg_resources
@@ -181,11 +182,28 @@ class Builder(object):
     def set(self, **settings):
         self._settings.append(settings)
 
+    def _load_if_exists(self, spec):
+        root, ext = os.path.splitext(spec)
+        if ext not in self._loaders:
+            return
+        try:
+            loader = self._loaders[ext]
+            return loader(spec)
+        except IOError as e:
+            if e.errno == errno.ENOENT:
+                return
+            raise
+
     def load(self, source):
         if isinstance(source, basestring):
-            root, ext = os.path.splitext(source)
-            loader = self._loaders[ext]
-            self.set(**loader(source))
+            settings = self._load_if_exists(source)
+            if settings is None:
+                root, _ext = os.path.splitext(source)
+                for ext in self._loaders:
+                    assert settings is None
+                    settings = self._load_if_exists(root + ext)
+            assert settings is not None
+            self.set(**settings)
         else:
             self.set(**source)
 
