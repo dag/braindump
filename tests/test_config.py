@@ -177,8 +177,12 @@ def test_builder_add_loader():
     builder.load('tests.fixtures:configs/one.yml')
     builder.load('tests.fixtures:configs/two.json')
     builder.load(_relative('fixtures/configs/three.yml'))
-    conf = builder.build()
 
+    conf = builder.build()
     assert conf == config.Node(
         numbers=config.Node(one=1, two=2, three=3),
     )
+
+    builder.reset()
+    conf = builder.build()
+    assert conf == config.Node()

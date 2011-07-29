@@ -168,8 +168,11 @@ class INILoader(AbstractLoader):
 class Builder(object):
 
     def __init__(self):
-        self._settings = []
         self._loaders = {}
+        self.reset()
+
+    def reset(self):
+        self._settings = []
 
     def add_loader(self, ext, loader):
         assert ext not in self._loaders
