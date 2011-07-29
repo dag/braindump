@@ -168,23 +168,26 @@ class INILoader(AbstractLoader):
 class Builder(object):
 
     def __init__(self):
-        self._mappings = []
+        self._settings = []
         self._loaders = {}
 
     def add_loader(self, ext, loader):
         assert ext not in self._loaders
         self._loaders[ext] = loader
 
-    def add(self, source):
+    def set(self, **settings):
+        self._settings.append(settings)
+
+    def load(self, source):
         if isinstance(source, basestring):
             root, ext = os.path.splitext(source)
             loader = self._loaders[ext]
-            self._mappings.append(loader(source))
+            self.set(**loader(source))
         else:
-            self._mappings.append(source)
+            self.set(**source)
 
     def build(self):
-        mappings_with_safe_keys = map(convert_keys, self._mappings)
-        merged = merge(mappings_with_safe_keys)
+        safe = map(convert_keys, self._settings)
+        merged = merge(safe)
         config = Node(**merged)
         return config

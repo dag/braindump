@@ -138,24 +138,24 @@ def test_ini_loader():
 def test_builder():
     builder = config.Builder()
 
-    builder.add({
-        'numbers': dict(one=1, two=2, three=4),
-        'greetings': dict(english='Hello', swedish='Hej'),
-    })
+    builder.set(
+        numbers=dict(one=1, two=2, three=4),
+        greetings=dict(english='Hello', swedish='Hej'),
+    )
 
-    builder.add({
-        'numbers': dict(two=2, three=3, four=4),
-        'greetings': dict(lojban='coi'),
-    })
+    builder.set(
+        numbers=dict(two=2, three=3, four=4),
+        greetings=dict(lojban='coi'),
+    )
 
-    builder.add({
+    builder.load({
         'class': 'keyword',
         '5': 'number',
         ' arbitrarily-complex %KEY!!': 'encoded',
     })
 
-    builder.add({'merge-by-converted-key': dict(one=1, two=2)})
-    builder.add({'merge_by_converted_key': dict(three=3, four=4)})
+    builder.load({'merge-by-converted-key': dict(one=1, two=2)})
+    builder.load({'merge_by_converted_key': dict(three=3, four=4)})
 
     conf = builder.build()
     assert conf == config.Node(
@@ -173,9 +173,9 @@ def test_builder_add_loader():
     with pytest.raises(AssertionError):
         builder.add_loader('.yml', config.YAMLLoader())
 
-    builder.add('tests.fixtures:configs/one.yml')
-    builder.add(_relative('fixtures/configs/two.yml'))
-    builder.add(_relative('fixtures/configs/three.yml'))
+    builder.load('tests.fixtures:configs/one.yml')
+    builder.load(_relative('fixtures/configs/two.yml'))
+    builder.load(_relative('fixtures/configs/three.yml'))
     conf = builder.build()
 
     assert conf == config.Node(
