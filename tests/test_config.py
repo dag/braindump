@@ -117,6 +117,16 @@ def test_yaml_loader():
     assert two == dict(numbers=dict(two=2))
 
 
+def test_json_loader():
+    loader = config.JSONLoader()
+
+    one = loader(_relative('fixtures/configs/one.json'))
+    assert one == dict(numbers=dict(one=1))
+
+    two = loader('tests.fixtures:configs/two.json')
+    assert two == dict(numbers=dict(two=2))
+
+
 def test_builder():
     builder = config.Builder()
 

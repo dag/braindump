@@ -1,6 +1,7 @@
 import abc
 import contextlib
 import copy
+import json
 import os
 import pkg_resources
 import yaml
@@ -132,6 +133,11 @@ class AbstractStreamLoader(AbstractLoader):
 class YAMLLoader(AbstractStreamLoader):
 
     function = yaml.load
+
+
+class JSONLoader(AbstractStreamLoader):
+
+    function = json.load
 
 
 class Builder(object):
