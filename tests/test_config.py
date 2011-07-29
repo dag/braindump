@@ -9,10 +9,12 @@ def test_node():
 
     assert repr(node) == 'Node(one=1, two=2)'
 
-    # fields are attributes
+    # children are attributes
     assert node.one == 1 and node.two == 2
     assert set(dir(node)) == set(['one', 'two'])
     assert set(node) == set(['one', 'two'])
+    assert hasattr(node, 'one') and hasattr(node, 'two')
+    assert not hasattr(node, 'three')
 
     # nodes are immutable
     with pytest.raises(AttributeError):
