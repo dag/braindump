@@ -6,7 +6,12 @@ class Node(object):
     __slots__ = ('__fields',)
 
     def __init__(self, **fields):
-        self.__fields = fields
+        self.__fields = {}
+        for key, value in fields.iteritems():
+            if isinstance(value, dict):
+                self.__fields[key] = type(self)(**value)
+            else:
+                self.__fields[key] = value
 
     def __getattr__(self, field):
         try:
@@ -19,6 +24,10 @@ class Node(object):
 
     def __iter__(self):
         return iter(self.__fields)
+
+    def __eq__(self, other):
+        return (isinstance(other, type(self)) and
+                self.__fields == other._Node__fields)
 
     def __repr__(self):
         fields = ', '.join('{0}={1!r}'.format(*item)
@@ -43,3 +52,17 @@ def merge(mappings):
                     continue
                 destination[key] = value
     return merged
+
+
+class Builder(object):
+
+    def __init__(self):
+        self._mappings = []
+
+    def add(self, mapping):
+        self._mappings.append(mapping)
+
+    def build(self):
+        merged = merge(self._mappings)
+        config = Node(**merged)
+        return config

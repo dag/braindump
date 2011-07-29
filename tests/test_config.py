@@ -31,3 +31,27 @@ def test_dict_merging(merging):
 
     # merge into a new dict rather than in-place of any of the passed ones
     assert not any(merged is mapping for mapping in merging['mappings'])
+
+
+def test_builder():
+    builder = config.Builder()
+
+    builder.add(
+        dict(
+            numbers=dict(one=1, two=2, three=4),
+            greetings=dict(english='Hello', swedish='Hej'),
+        )
+    )
+
+    builder.add(
+        dict(
+            numbers=dict(two=2, three=3, four=4),
+            greetings=dict(lojban='coi'),
+        )
+    )
+
+    conf = builder.build()
+    assert conf == config.Node(
+        numbers=config.Node(one=1, two=2, three=3, four=4),
+        greetings=config.Node(english='Hello', swedish='Hej', lojban='coi'),
+    )
