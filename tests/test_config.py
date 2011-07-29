@@ -168,13 +168,14 @@ def test_builder():
 
 def test_builder_add_loader():
     builder = config.Builder()
-    builder.add_loader('.yml', config.YAMLLoader())
 
+    builder.add_loader('.json', config.JSONLoader())
+    builder.add_loader('.yml', config.YAMLLoader())
     with pytest.raises(AssertionError):
         builder.add_loader('.yml', config.YAMLLoader())
 
     builder.load('tests.fixtures:configs/one.yml')
-    builder.load(_relative('fixtures/configs/two.yml'))
+    builder.load('tests.fixtures:configs/two.json')
     builder.load(_relative('fixtures/configs/three.yml'))
     conf = builder.build()
 
