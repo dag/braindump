@@ -47,7 +47,11 @@ class Node(object):
         return self.__children.keys()
 
     def __iter__(self):
-        return iter(self.__children)
+        for key, value in self.__children.iteritems():
+            if isinstance(value, Node):
+                yield key, dict(value)
+            else:
+                yield key, value
 
     def __eq__(self, other):
         return (isinstance(other, type(self)) and

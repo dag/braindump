@@ -17,15 +17,29 @@ def test_node():
     # children are attributes
     assert node.one == 1 and node.two == 2
     assert set(dir(node)) == set(['one', 'two'])
-    assert set(node) == set(['one', 'two'])
     assert hasattr(node, 'one') and hasattr(node, 'two')
     assert not hasattr(node, 'three')
+
+    # nodes iterate over children pairs
+    assert set(node) == set([('one', 1), ('two', 2)])
+    assert dict(node) == dict(one=1, two=2)
 
     # nodes are immutable
     with pytest.raises(AttributeError):
         node.two = 'two'
     with pytest.raises(AttributeError):
         node.three = 3
+
+
+def test_node_nesting():
+    node = config.Node(inner=dict(one=1, two=2))
+
+    # dict children are wrapped as nodes
+    assert isinstance(node.inner, config.Node)
+
+    # iteration yeilds dicts for nodes
+    assert dict(node) == dict(inner=dict(one=1, two=2))
+    assert isinstance(dict(node)['inner'], dict)
 
 
 def test_node_traversal():
