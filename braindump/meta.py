@@ -81,9 +81,5 @@ class Casing(object):
         return self.lower.replace(u'_', u'-')
 
 
-def string_to_identifier(string):
-    return Casing(Split(string).words).ident
-
-
-def identifier_to_string(identifier):
-    return Casing(Split(identifier).smart).slug
+def recase(string, case='ident', split='smart'):
+    return getattr(Casing(getattr(Split(string), split)), case)

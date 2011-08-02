@@ -37,7 +37,7 @@ class Node(object):
         return True
 
     def __getitem__(self, path):
-        names = map(meta.string_to_identifier, path.split(u'.'))
+        names = map(meta.recase, path.split(u'.'))
         try:
             return reduce(getattr, [self] + names)
         except AttributeError:
@@ -63,7 +63,7 @@ class Node(object):
         return '{0}({1})'.format(type(self).__name__, children)
 
 
-def convert_keys(mapping, converter=meta.string_to_identifier):
+def convert_keys(mapping, converter=meta.recase):
     if not isinstance(mapping, dict):
         return mapping
     new = {}
