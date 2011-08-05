@@ -66,3 +66,12 @@ def test_isinstance_predicate():
     Percentage = component.predicate(lambda x: 0 <= x <= 100)
     assert isinstance(50, Percentage)
     assert not isinstance(150, Percentage)
+
+
+def test_require():
+    @component.require(one=1, two=2)
+    @component.require(three=3)
+    def annotated(one, two, three):
+        pass
+
+    assert annotated.__annotations__ == dict(one=1, two=2, three=3)

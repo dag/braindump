@@ -11,6 +11,15 @@ def predicate(function):
     return _Predicate
 
 
+def require(**annotations):
+    def decorator(function):
+        if not hasattr(function, '__annotations__'):
+            function.__annotations__ = {}
+        function.__annotations__.update(annotations)
+        return function
+    return decorator
+
+
 Identity = collections.namedtuple('Identity', ['id', 'hash', 'context'])
 
 
