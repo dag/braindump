@@ -58,8 +58,14 @@ def test_registry_tagging():
     registry = component.Registry()
     tagged = list(registry['registry'])
     assert tagged == [registry] and tagged[0] is registry
-    registry.tag('foo', 'bar')
-    assert list(registry['foo']) == ['bar']
+
+    assert not list(registry['foo'])
+    with registry.tag('foo', 'bar'):
+        assert list(registry['foo']) == ['bar']
+        with registry.tag('foo', 'foobar'):
+            assert list(registry['foo']) == ['foobar']
+        assert list(registry['foo']) == ['bar']
+    assert not list(registry['foo'])
 
 
 def test_isinstance_predicate():

@@ -32,8 +32,9 @@ class Registry(object):
     def __init__(self):
         self._objects = {}
         self._stacked = collections.OrderedDict()
-        self._tagged = {}
-        self.tag('registry', self)
+        listdict = lambda: collections.defaultdict(list)
+        self._tags = collections.defaultdict(listdict)
+        self._tags['registry'][None].append(self)
 
     def context(self):
         return thread.get_ident()
@@ -55,8 +56,14 @@ class Registry(object):
         finally:
             del self._stacked[identity]
 
+    @contextlib.contextmanager
     def tag(self, tag, object):
-        self._tagged[tag] = object
+        context = self.context()
+        self._tags[tag][context].append(object)
+        try:
+            yield object
+        finally:
+            self._tags[tag][context].pop()
 
     def inject(self, function):
         annotations = function.__annotations__
@@ -72,18 +79,25 @@ class Registry(object):
         for call in itertools.product(*calls):
             function(*call)
 
-    def __getitem__(self, type):
-        if type in self._tagged:
-            yield self._tagged[type]
-            return
+    def __getitem__(self, requirement):
+        context = self.context()
+        if requirement in self._tags:
+            if context in self._tags[requirement]:
+                if self._tags[requirement][context]:
+                    yield self._tags[requirement][context][-1]
+                    return
+            if None in self._tags[requirement]:
+                if self._tags[requirement][None]:
+                    yield self._tags[requirement][None][-1]
+                    return
         for identity in reversed(self._stacked):
             if identity.context is not None != self.context():
                 continue
             object = self._stacked[identity]
-            if isinstance(object, type):
+            if isinstance(object, requirement):
                 yield object
                 break
         else:
             for object in self._objects.itervalues():
-                if isinstance(object, type):
+                if isinstance(object, requirement):
                     yield object
