@@ -19,6 +19,8 @@ class Registry(object):
     def __init__(self):
         self._objects = {}
         self._stacked = collections.OrderedDict()
+        self._tagged = {}
+        self.tag('registry', self)
 
     def context(self):
         return thread.get_ident()
@@ -40,7 +42,13 @@ class Registry(object):
         finally:
             del self._stacked[identity]
 
+    def tag(self, tag, object):
+        self._tagged[tag] = object
+
     def __getitem__(self, type):
+        if type in self._tagged:
+            yield self._tagged[type]
+            return
         for identity in reversed(self._stacked):
             if identity.context is not None != self.context():
                 continue

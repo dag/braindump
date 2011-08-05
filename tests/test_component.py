@@ -54,6 +54,14 @@ def test_registry_stacks():
     assert set(registry[int]) == set([0, 1])
 
 
+def test_registry_tagging():
+    registry = component.Registry()
+    tagged = list(registry['registry'])
+    assert tagged == [registry] and tagged[0] is registry
+    registry.tag('foo', 'bar')
+    assert list(registry['foo']) == ['bar']
+
+
 def test_isinstance_predicate():
     Percentage = component.predicate(lambda x: 0 <= x <= 100)
     assert isinstance(50, Percentage)
