@@ -60,12 +60,10 @@ class Registry(object):
 
     def inject(self, function):
         annotations = function.__annotations__
-        argspec = inspect.getargspec(function)
-        defaults = {}
-        for x, value in enumerate(argspec.defaults, 1):
-            defaults[argspec.args[-x]] = value
+        args, va, kw, defaults = inspect.getargspec(function)
+        defaults = dict(zip(reversed(args), reversed(defaults)))
         calls = []
-        for arg in argspec.args:
+        for arg in args:
             if arg in annotations:
                 requirement = annotations[arg]
                 calls.append(self[requirement])
