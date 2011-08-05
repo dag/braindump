@@ -69,12 +69,11 @@ def test_isinstance_predicate():
 
 
 def test_require():
-    @component.require(one=1, two=2)
-    @component.require(three=3)
-    def annotated(one, two, three):
-        pass
-
-    assert annotated.__annotations__ == dict(one=1, two=2, three=3)
+    @component.require(c=3, e=5)
+    @component.require(1, 2)
+    @component.require(d=4)
+    def annotated(a, b, c, d, e, f): pass
+    assert annotated.__annotations__ == dict(a=1, b=2, c=3, d=4, e=5)
 
 
 def test_dependency_injection():

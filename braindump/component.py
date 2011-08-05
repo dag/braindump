@@ -13,11 +13,13 @@ def predicate(function):
     return _Predicate
 
 
-def require(**annotations):
+def require(*args, **kwargs):
     def decorator(function):
         if not hasattr(function, '__annotations__'):
             function.__annotations__ = {}
-        function.__annotations__.update(annotations)
+        if args:
+            kwargs.update(zip(inspect.getargspec(function).args, args))
+        function.__annotations__.update(kwargs)
         return function
     return decorator
 
