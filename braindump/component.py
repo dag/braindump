@@ -3,6 +3,14 @@ import contextlib
 import thread
 
 
+def predicate(function):
+    class _Predicate:
+        class __metaclass__(type):
+            def __instancecheck__(self, instance):
+                return function(instance)
+    return _Predicate
+
+
 Identity = collections.namedtuple('Identity', ['id', 'hash', 'context'])
 
 

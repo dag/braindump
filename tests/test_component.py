@@ -52,3 +52,9 @@ def test_registry_stacks():
             assert list(registry[int]) == [3]
         assert list(registry[int]) == [2]
     assert set(registry[int]) == set([0, 1])
+
+
+def test_isinstance_predicate():
+    Percentage = component.predicate(lambda x: 0 <= x <= 100)
+    assert isinstance(50, Percentage)
+    assert not isinstance(150, Percentage)
