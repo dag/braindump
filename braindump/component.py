@@ -1,5 +1,7 @@
 import collections
 import contextlib
+import inspect
+import itertools
 import thread
 
 
@@ -53,6 +55,22 @@ class Registry(object):
 
     def tag(self, tag, object):
         self._tagged[tag] = object
+
+    def inject(self, function):
+        annotations = function.__annotations__
+        argspec = inspect.getargspec(function)
+        defaults = {}
+        for x, value in enumerate(argspec.defaults, 1):
+            defaults[argspec.args[-x]] = value
+        calls = []
+        for arg in argspec.args:
+            if arg in annotations:
+                requirement = annotations[arg]
+                calls.append(self[requirement])
+            else:
+                calls.append([defaults[arg]])
+        for call in itertools.product(*calls):
+            function(*call)
 
     def __getitem__(self, type):
         if type in self._tagged:

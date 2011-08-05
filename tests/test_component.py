@@ -75,3 +75,26 @@ def test_require():
         pass
 
     assert annotated.__annotations__ == dict(one=1, two=2, three=3)
+
+
+def test_dependency_injection():
+    calls = []
+    @component.require(num=int, nums=tuple)
+    def dependable(num, nums, x=42, *args, **kwargs):
+        assert x == 42 and args == () and kwargs == {}
+        calls.append((num, nums))
+
+    registry = component.Registry()
+    registry.add(2)
+    registry.add(5)
+    registry.add((10, 20, 30))
+    registry.add((3, 6, 9))
+    registry.inject(dependable)
+
+    assert len(calls) == 4
+    assert set(calls) == set([
+        (2, (10, 20, 30)),
+        (2, (3, 6, 9)),
+        (5, (10, 20, 30)),
+        (5, (3, 6, 9)),
+    ])
