@@ -1,5 +1,6 @@
 import collections
 import contextlib
+import functools
 import inspect
 import itertools
 import thread
@@ -8,11 +9,12 @@ from . import adaption
 
 
 def predicate(function):
-    class _Predicate:
-        class __metaclass__(type):
-            def __instancecheck__(self, instance):
-                return function(instance)
-    return _Predicate
+    class PredicateType(type):
+        def __instancecheck__(self, instance):
+            return function(instance)
+    class_ = PredicateType('predicate', (object,), {})
+    functools.update_wrapper(class_, function, updated=())
+    return class_
 
 
 def require(*args, **kwargs):

@@ -73,6 +73,15 @@ def test_isinstance_predicate():
     assert isinstance(50, Percentage)
     assert not isinstance(150, Percentage)
 
+    @component.predicate
+    def Color(x):
+        return x in ('red', 'green', 'blue')
+
+    for color in ('red', 'green', 'blue'):
+        assert isinstance(color, Color)
+
+    assert not isinstance('dark', Color)
+
 
 def test_require():
     @component.require(c=3, e=5)
