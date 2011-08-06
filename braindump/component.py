@@ -17,6 +17,20 @@ def predicate(function):
     return class_
 
 
+def All(*classes):
+    @predicate
+    def AllPredicate(x):
+        return all(isinstance(x, cls) for cls in classes)
+    return AllPredicate
+
+
+def Exactly(*classes):
+    @predicate
+    def ExactlyPredicate(x):
+        return any(type(x) is cls for cls in classes)
+    return ExactlyPredicate
+
+
 def require(*args, **kwargs):
     def decorator(function):
         if not hasattr(function, '__annotations__'):

@@ -68,7 +68,7 @@ def test_registry_tagging():
     assert not list(registry['foo'])
 
 
-def test_isinstance_predicate():
+def test_predicate():
     Percentage = component.predicate(lambda x: 0 <= x <= 100)
     assert isinstance(50, Percentage)
     assert not isinstance(150, Percentage)
@@ -81,6 +81,19 @@ def test_isinstance_predicate():
         assert isinstance(color, Color)
 
     assert not isinstance('dark', Color)
+
+
+def test_all_predicate():
+    assert isinstance('hello', component.All(basestring, str))
+    assert not isinstance('hello', component.All(basestring, unicode))
+
+
+def test_exactly_predicate():
+    assert isinstance('hello', component.Exactly(str))
+    assert not isinstance('hello', component.Exactly(basestring))
+    assert isinstance('hello', component.Exactly(str, unicode))
+    assert isinstance(u'hello', component.Exactly(str, unicode))
+    assert not isinstance('hello', component.Exactly(basestring, unicode))
 
 
 def test_require():
