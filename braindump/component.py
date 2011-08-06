@@ -4,6 +4,8 @@ import inspect
 import itertools
 import thread
 
+from . import adaption
+
 
 def predicate(function):
     class _Predicate:
@@ -29,7 +31,10 @@ Identity = collections.namedtuple('Identity', ['id', 'hash', 'context'])
 
 class Registry(object):
 
-    def __init__(self):
+    def __init__(self, adapt=None):
+        if adapt is None:
+            adapt = adaption.Registry()
+        self.adapt = adapt
         self._objects = {}
         self._stacked = collections.OrderedDict()
         listdict = lambda: collections.defaultdict(list)
@@ -94,10 +99,14 @@ class Registry(object):
             if identity.context is not None != self.context():
                 continue
             object = self._stacked[identity]
-            if isinstance(object, requirement):
-                yield object
+            try:
+                yield self.adapt(object, requirement)
                 break
+            except TypeError:
+                pass
         else:
             for object in self._objects.itervalues():
-                if isinstance(object, requirement):
-                    yield object
+                try:
+                    yield self.adapt(object, requirement)
+                except TypeError:
+                    pass

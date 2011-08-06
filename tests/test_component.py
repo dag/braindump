@@ -103,3 +103,10 @@ def test_dependency_injection():
         (5, (10, 20, 30)),
         (5, (3, 6, 9)),
     ])
+
+
+def test_registry_adaption():
+    registry = component.Registry()
+    registry.add(42)
+    registry.adapt.add(unicode, int, basestring)
+    assert list(registry[basestring]) == [u'42']
