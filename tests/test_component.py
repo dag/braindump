@@ -130,5 +130,5 @@ def test_dependency_injection():
 def test_registry_adaption():
     registry = component.Registry()
     registry.add(42)
-    registry.adapt.add(unicode, int, basestring)
+    registry.adapt[int:basestring] = unicode
     assert list(registry[basestring]) == [u'42']
