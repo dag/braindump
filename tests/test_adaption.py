@@ -30,3 +30,18 @@ def test_registry():
     adapt.add(dict, set)
     adapted = adapt((('a', 1), ('b', 2)), dict)
     assert adapted == dict(a=1, b=2) and type(adapted) is dict
+
+
+def test_registry_type_factories():
+    adapt = adaption.Registry()
+
+    assert adapt[str] is str
+
+    adapt[str] = unicode
+    assert adapt[str] is unicode
+
+    adapt[str] = int
+    assert adapt[str] is int
+
+    del adapt[str]
+    assert adapt[str] is str
